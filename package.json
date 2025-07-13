@@ -1,7 +1,7 @@
 {
    "name": "@gauravsharmacode/neat-logger",
   "private": false,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "description": "Production-grade structured logger for Node.js apps using Winston",
   "author": "Neat Logger Team",
