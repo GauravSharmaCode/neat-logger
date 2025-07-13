@@ -2,29 +2,28 @@ const winston = require("winston");
 const path = require("path");
 const fs = require("fs");
 
-// Ensure log directory exists
-const LOG_DIR = path.join(process.cwd(), "logs"); // Always relative to the main project root
+const LOG_DIR = path.join(process.cwd(), "logs");
 if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR);
 
-// Define paths
 const ERROR_LOG = path.join(LOG_DIR, "error.log");
 const COMBINED_LOG = path.join(LOG_DIR, "combined.log");
 const QUERY_LOG = path.join(LOG_DIR, "query.log");
 
-// Pretty console logs
+// Force single-line console logs
 const consoleFormat = winston.format.combine(
   winston.format.colorize(),
   winston.format.timestamp(),
   winston.format.printf(({ level, message, timestamp }) => {
-    const parsed = typeof message === "object" ? message : JSON.parse(message);
-    return `[${timestamp}] ${level}: ${parsed.message} ${JSON.stringify(parsed, null, 2)}`;
+    const parsed = typeof message === "object" ? message : (() => {
+      try { return JSON.parse(message); } catch { return { message }; }
+    })();
+    return `[${timestamp}] ${level}: ${parsed.message} ${JSON.stringify(parsed)}`;
   })
 );
 
-// Raw JSON logs for file transports
 const fileFormat = winston.format.combine(
   winston.format.timestamp(),
-  winston.format.json() // auto-stringify
+  winston.format.json() // ✅ Already single-line
 );
 
 const logger = winston.createLogger({

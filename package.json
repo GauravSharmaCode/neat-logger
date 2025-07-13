@@ -1,6 +1,7 @@
 {
-  "name": "neat-logger",
-  "version": "1.0.0",
+   "name": "@gauravsharmacode/neat-logger",
+  "private": false,
+  "version": "1.0.1",
   "main": "index.js",
   "description": "Production-grade structured logger for Node.js apps using Winston",
   "author": "Neat Logger Team",
@@ -8,7 +9,7 @@
   "keywords": ["logger", "winston", "nodejs", "structured-logging"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/gauravsharmacode/neatspend-logger.git"
+    "url": "https://github.com/gauravsharmacode/neat-logger.git"
   },
   "dependencies": {
     "winston": "^3.17.0"
