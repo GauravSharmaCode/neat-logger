@@ -1,0 +1,27 @@
+# Node modules and logs
+node_modules/
+logs/
+*.log
+
+# Runtime files
+*.pid
+*.seed
+
+# Test output
+coverage/
+test-results/
+
+# Environment variables
+.env
+
+# IDE/editor-specific
+.vscode/
+.idea/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Optional: npm lock if you're using yarn instead
+# package-lock.json

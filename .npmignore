@@ -1,0 +1,32 @@
+# Node modules (already excluded by npm, but safe to include)
+node_modules
+logs/
+
+# Build artifacts
+test.js
+logs/
+*.log
+
+
+# Configs not needed for published package
+*.env
+*.env.*
+
+# IDE/editor files
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Git
+.git/
+.gitignore
+
+# OS-specific
+Thumbs.db
+ehthumbs.db
+
+# Optional
+README.draft.md
+TODO.md
+LICENSE.draft
