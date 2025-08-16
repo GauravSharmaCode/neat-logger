@@ -1,7 +1,16 @@
-const path = require("path");
-const logger = require("./winstonLogger");
+import path from "path";
+import logger from "./winstonLogger";
 
-const LEVELS = ["info", "warn", "error", "debug"];
+export type LogLevel = "info" | "warn" | "error" | "debug";
+export interface LogMeta {
+  level?: LogLevel;
+  file?: string;
+  func?: string;
+  requestId?: string;
+  extra?: Record<string, any>;
+}
+
+const LEVELS: LogLevel[] = ["info", "warn", "error", "debug"];
 
 /**
  * Retrieves the file name and function name of the calling code.
@@ -10,15 +19,15 @@ const LEVELS = ["info", "warn", "error", "debug"];
  * location in the code where the logWithMeta function was called. It skips
  * frames related to internal Node.js modules and logger utility files.
  *
- * @returns {Object} An object containing:
- * - {string} fileName: The name of the file from which the function was called.
- * - {string} functionName: The name of the function that made the call.
+ * @returns An object containing:
+ * - fileName: The name of the file from which the function was called.
+ * - functionName: The name of the function that made the call.
  *   If unable to determine, defaults to 'unknown'.
  */
-function getCallerInfo() {
+function getCallerInfo(): { fileName: string; functionName: string } {
   const stack = new Error().stack?.split("\n").slice(2); // Skip current + logWithMeta frame
 
-  for (const line of stack) {
+  for (const line of stack || []) {
     if (!line || line.includes("node_modules") || line.includes("internal") || line.includes("logger.js")) continue;
 
     const match = line.match(/at\s+(.*?)\s+\((.*):(\d+):(\d+)\)/) || line.match(/at\s+(.*):(\d+):(\d+)/);
@@ -37,20 +46,12 @@ function getCallerInfo() {
 
 /**
  * Structured logger with metadata.
- *
- * @param {string} message - The message to log.
- * @param {Object} [meta={}]
- * @param {"info"|"warn"|"error"|"debug"} [meta.level]
- * @param {string} [meta.file]
- * @param {string} [meta.func]
- * @param {string} [meta.requestId]
- * @param {Record<string, any>} [meta.extra]
  */
-function logWithMeta(message, meta = {}) {
+export function logWithMeta(message: string, meta: LogMeta = {}): void {
   const timestamp = new Date().toISOString();
   const { fileName, functionName } = getCallerInfo();
 
-  const level = LEVELS.includes(meta.level) ? meta.level : "info";
+  const level: LogLevel = LEVELS.includes(meta.level as LogLevel) ? (meta.level as LogLevel) : "info";
   const file = meta.file || fileName;
   const func = meta.func || functionName;
 
@@ -66,8 +67,6 @@ function logWithMeta(message, meta = {}) {
 
   logger.log({
     level,
-    message: logEntry, // Pass as raw object for JSON serialization
+    message: JSON.stringify(logEntry), // Serialize log entry for Winston
   });
 }
-
-module.exports = { logWithMeta };

@@ -1,6 +1,7 @@
+
 # 📦 neat-logger
 
-A structured, pluggable, and environment-friendly logging utility built with [Winston](https://github.com/winstonjs/winston) — optimized for modern Node.js apps and microservices.
+A structured, pluggable, and environment-friendly logging utility built with [Winston](https://github.com/winstonjs/winston) — optimized for modern Node.js apps and microservices. Now fully migrated to **TypeScript**.
 
 > Designed to be reused across projects and services — with built-in metadata support, file logging, and support for trace IDs.
 
@@ -15,6 +16,7 @@ A structured, pluggable, and environment-friendly logging utility built with [Wi
 - ✅ Production-ready Winston setup
 - ✅ Easy `traceId` injection for request tracing
 - ✅ Console + file output
+- ✅ TypeScript types and interfaces
 
 ---
 
@@ -24,7 +26,7 @@ A structured, pluggable, and environment-friendly logging utility built with [Wi
 npm install neat-logger
 ```
 
-Or if using from local development:
+Or for local development:
 
 ```bash
 # Inside the neat-logger folder
@@ -38,10 +40,10 @@ npm link neat-logger
 
 ## 🧑‍💻 Usage
 
-### 1. Basic Logging
+### 1. Basic Logging (TypeScript)
 
-```js
-const { logWithMeta } = require('neat-logger');
+```ts
+import { logWithMeta } from 'neat-logger';
 
 logWithMeta("User created successfully", {
   func: "createUser",
@@ -51,7 +53,7 @@ logWithMeta("User created successfully", {
 
 ### 2. Traceable Logging (with `traceId`)
 
-```js
+```ts
 logWithMeta("Fetching user details", {
   func: "getUserById",
   extra: {
@@ -63,7 +65,7 @@ logWithMeta("Fetching user details", {
 
 ### 3. Levels
 
-```js
+```ts
 logWithMeta("Something went wrong", { level: "error" });
 logWithMeta("Debugging DB issue", { level: "debug" });
 logWithMeta("Just an info", { level: "info" });
@@ -73,12 +75,12 @@ logWithMeta("Just an info", { level: "info" });
 
 ## 🗂 Logs Generated
 
-By default, this logger writes logs to a `logs/` directory:
+By default, this logger writes logs to a `logs/` directory in your project root:
 
 | File           | Purpose                        |
 |----------------|--------------------------------|
 | `error.log`    | Errors only (`level: error`)   |
-| `combined.log` | All logs (`info` and above)    |
+| `combined.log` | All logs (`debug` and above)   |
 | `query.log`    | For debugging/queries (`debug` level) |
 
 Console output is colorized and formatted for readability.
@@ -107,6 +109,7 @@ module.exports = (req, res, next) => {
 - Uses [Winston](https://github.com/winstonjs/winston) under the hood
 - Formats logs with timestamp, level, message, and metadata
 - Auto-detects calling file/function via stack trace
+- TypeScript interfaces for strong typing
 
 ---
 

@@ -1,17 +1,24 @@
 {
    "name": "@gauravsharmacode/neat-logger",
-  "private": false,
-  "version": "1.0.1",
-  "main": "index.js",
-  "description": "Production-grade structured logger for Node.js apps using Winston",
-  "author": "Neat Logger Team",
-  "license": "MIT",
-  "keywords": ["logger", "winston", "nodejs", "structured-logging"],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/gauravsharmacode/neat-logger.git"
-  },
-  "dependencies": {
-    "winston": "^3.17.0"
-  }
+   "private": false,
+   "version": "1.0.1",
+   "main": "index.js",
+   "description": "Production-grade structured logger for Node.js apps using Winston",
+   "author": "Neat Logger Team",
+   "license": "MIT",
+   "keywords": [
+      "logger",
+      "winston",
+      "nodejs",
+      "structured-logging"
+   ],
+   "repository": {
+      "type": "git",
+      "url": "https://github.com/gauravsharmacode/neat-logger.git"
+   },
+   "dependencies": {
+      "@types/node": "^24.3.0",
+      "typescript": "^5.9.2",
+      "winston": "^3.17.0"
+   }
 }
