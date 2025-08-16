@@ -1,8 +1,8 @@
-const winston = require("winston");
-const path = require("path");
-const fs = require("fs");
+import winston from "winston";
+import path from "path";
+import fs from "fs";
 
-const LOG_DIR = path.join(process.cwd(), "logs");
+const LOG_DIR = path.join(path.resolve(__dirname, '..'), "logs");
 if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR);
 
 const ERROR_LOG = path.join(LOG_DIR, "error.log");
@@ -14,9 +14,12 @@ const consoleFormat = winston.format.combine(
   winston.format.colorize(),
   winston.format.timestamp(),
   winston.format.printf(({ level, message, timestamp }) => {
-    const parsed = typeof message === "object" ? message : (() => {
-      try { return JSON.parse(message); } catch { return { message }; }
-    })();
+    let parsed: any;
+    try {
+      parsed = JSON.parse(message as string);
+    } catch {
+      parsed = { message };
+    }
     return `[${timestamp}] ${level}: ${parsed.message} ${JSON.stringify(parsed)}`;
   })
 );
@@ -27,13 +30,13 @@ const fileFormat = winston.format.combine(
 );
 
 const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || "info",
+  level: process.env.LOG_LEVEL || "debug",
   transports: [
-    new winston.transports.Console({ format: consoleFormat }),
-    new winston.transports.File({ filename: ERROR_LOG, level: "error", format: fileFormat }),
-    new winston.transports.File({ filename: COMBINED_LOG, format: fileFormat }),
-    new winston.transports.File({ filename: QUERY_LOG, level: "debug", format: fileFormat }),
+  new winston.transports.Console({ format: consoleFormat }),
+  new winston.transports.File({ filename: ERROR_LOG, level: "error", format: fileFormat }),
+  new winston.transports.File({ filename: COMBINED_LOG, level: "debug", format: fileFormat }),
+  new winston.transports.File({ filename: QUERY_LOG, level: "debug", format: fileFormat }),
   ],
 });
 
-module.exports = logger;
+export default logger;
