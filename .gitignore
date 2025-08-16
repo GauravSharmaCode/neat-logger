@@ -3,6 +3,23 @@ node_modules/
 logs/
 *.log
 
+# TypeScript build artifacts
+dist/
+*.tsbuildinfo
+
+# Ignore source maps
+*.js.map
+
+# Ignore compiled JS in src/ and tests/
+src/**/*.js
+src/**/*.js.map
+tests/**/*.js
+tests/**/*.js.map
+
+# Ignore TypeScript declaration files if not published
+src/**/*.d.ts
+tests/**/*.d.ts
+
 # Runtime files
 *.pid
 *.seed
