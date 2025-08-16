@@ -1,5 +1,5 @@
 import path from "path";
-import logger from "./winstonLogger";
+import logger from "./logger";
 
 export type LogLevel = "info" | "warn" | "error" | "debug";
 export interface LogMeta {
