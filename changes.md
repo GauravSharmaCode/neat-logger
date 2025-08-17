@@ -1,6 +1,21 @@
 ## Changelog
 
-### Migration and Improvements
+## Version 2.0.0
+
+### Major Changes
+
+- The library has been completely refactored from a singe function (`logWithMeta`) to a class-based `Logger` instance.
+- The old `logWithMeta` export has been removed.
+
+### Features 
+- Introduced a new `Logger` class as the main export that encapsulates all logging functionality.
+- Added support for creating `chilf()` logerd with bound context.
+- Implemented a standard API with methods like `.info()`, `.warn()`, `error()`, etc.
+- Added a new `critical` log level.
+
+---
+
+### Historical Migration and Improvements
 
 - Migrated codebase to TypeScript for improved type safety and maintainability.
 - Moved source files to `src/` and tests to `tests/` for better project structure.

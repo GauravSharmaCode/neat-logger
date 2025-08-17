@@ -1,124 +1,160 @@
+# neat-logger
 
-# 📦 neat-logger
-
-A structured, pluggable, and environment-friendly logging utility built with [Winston](https://github.com/winstonjs/winston) — optimized for modern Node.js apps and microservices. Now fully migrated to **TypeScript**.
-
-> Designed to be reused across projects and services — with built-in metadata support, file logging, and support for trace IDs.
+A production-grade, structured logger for Node.js apps, built on Winston and designed for reusability across services. Version 2.0.0 introduces a class-based API, child loggers with bound context, and a new critical level — while keeping JSON output ready for log aggregation.
 
 ---
 
-## ✨ Features
+## Purpose
 
-- ✅ JSON-structured logging
-- ✅ Log level support (`info`, `warn`, `error`, `debug`)
-- ✅ Automatic file/function tracing
-- ✅ File-based logs (error, combined, query)
-- ✅ Production-ready Winston setup
-- ✅ Easy `traceId` injection for request tracing
-- ✅ Console + file output
-- ✅ TypeScript types and interfaces
+- Provide a simple, consistent logging API for services and libraries
+- Emit JSON logs suitable for ingestion (ELK, Datadog, etc.)
+- Support request/user context via child loggers
+- Keep console output human-readable during development
 
 ---
 
-## 📦 Installation
+## Features
+
+- JSON-structured logs with timestamp, level, message, and metadata
+- Levels: info, warn, error, debug, critical
+- Child loggers: bind context (e.g., requestId, userId) with `.child()`
+- Console + file transports (colorized console, JSON files)
+- Files written to `logs/` in the project root: `error.log` (errors only) and `combined.log` (all logs)
+- TypeScript-first with strong types for level methods
+
+---
+
+## Installation
+
+Install from npm (package name placeholder):
 
 ```bash
-npm install neat-logger
+npm install @gauravsharmacode/neat-logger
 ```
 
-Or for local development:
+Local development usage:
 
 ```bash
-# Inside the neat-logger folder
+# In this repo
+npm install
+npm run build
+
+# Optionally link for local testing in another project
 npm link
-
-# Inside your service/project folder
-npm link neat-logger
+# Then in your project
+npm link @gauravsharmacode/neat-logger
 ```
 
 ---
 
-## 🧑‍💻 Usage
-
-### 1. Basic Logging (TypeScript)
+## Quick start
 
 ```ts
-import { logWithMeta } from 'neat-logger';
+import { logger } from '@gauravsharmacode/neat-logger';
 
-logWithMeta("User created successfully", {
-  func: "createUser",
-  extra: { userId: 123 }
-});
+logger.info('Service started');
+logger.error('Operation failed', { code: 'E_FAIL' });
 ```
 
-### 2. Traceable Logging (with `traceId`)
+### Context with child loggers
 
 ```ts
-logWithMeta("Fetching user details", {
-  func: "getUserById",
-  extra: {
-    id: 42,
-    traceId: req.traceId   // Automatically added via middleware
-  }
-});
+import { logger } from '@gauravsharmacode/neat-logger';
+
+const reqLogger = logger.child({ requestId: 'req-123' });
+reqLogger.info('Handling request', { path: '/api/users' });
+
+const userLogger = reqLogger.child({ userId: 42 });
+userLogger.warn('Profile incomplete');
+userLogger.error('Save failed', { reason: 'validation' });
 ```
 
-### 3. Levels
+### Critical level
 
 ```ts
-logWithMeta("Something went wrong", { level: "error" });
-logWithMeta("Debugging DB issue", { level: "debug" });
-logWithMeta("Just an info", { level: "info" });
+logger.critical('Database unavailable', { db: 'primary' });
 ```
 
 ---
 
-## 🗂 Logs Generated
+## Repository usage (this repo)
 
-By default, this logger writes logs to a `logs/` directory in your project root:
+- Build the TypeScript sources:
 
-| File           | Purpose                        |
-|----------------|--------------------------------|
-| `error.log`    | Errors only (`level: error`)   |
-| `combined.log` | All logs (`debug` and above)   |
-| `query.log`    | For debugging/queries (`debug` level) |
+```bash
+npm run build
+```
 
-Console output is colorized and formatted for readability.
+- Run the example:
 
----
+```bash
+node example.js
+```
 
-## 🧩 Recommended Express Middleware
+- Run tests:
 
-Use this to inject `traceId` into every request:
-
-```js
-// traceMiddleware.js
-const { v4: uuidv4 } = require("uuid");
-
-module.exports = (req, res, next) => {
-  req.traceId = uuidv4();
-  res.setHeader("X-Trace-Id", req.traceId);
-  next();
-};
+```bash
+npm test
 ```
 
 ---
 
-## 💡 Internals
+## Project structure
 
-- Uses [Winston](https://github.com/winstonjs/winston) under the hood
-- Formats logs with timestamp, level, message, and metadata
-- Auto-detects calling file/function via stack trace
-- TypeScript interfaces for strong typing
+```
+.
+├─ src/
+│  ├─ index.ts        # Public exports (Logger class, base instance)
+│  └─ logger.ts       # Logger implementation (Winston setup, child, levels)
+├─ dist/              # Build output (generated)
+├─ tests/
+│  └─ main.test.ts    # End-to-end logging test against combined.log
+├─ example.js         # Runnable example (uses dist build)
+├─ example.ts         # TypeScript example (imports from dist)
+├─ jest.config.js     # Jest + ts-jest configuration
+├─ tsconfig.json      # Library TS config
+├─ tsconfig.test.json # Test TS config
+└─ changes.md         # Changelog
+```
 
 ---
 
-## 📜 License
+## How it works
 
-MIT © NeatSpend Team
+- Built on Winston with a custom level set that includes `critical`
+- Console transport is colorized and intended for local dev; file transports write JSON to `logs/error.log` and `logs/combined.log`
+- The base `logger` is an instance of `Logger`. Use `child(defaultMeta)` to create scoped loggers that automatically include your context
+- The implementation enriches logs with caller file/function using the JS stack; note that this may be tuned in future versions
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-Pull requests are welcome! Open an issue first to discuss major changes.
+Contributions are welcome!
+
+- Issues: Open one with a clear description, steps to reproduce, and expected behavior
+- PRs: Keep changes focused. Include tests when applicable
+- Development workflow:
+
+```bash
+# Install deps
+npm install
+
+# Type-check and build
+npm run build
+
+# Run tests
+npm test
+
+# Run lints/format (if configured)
+# npm run lint
+# npm run format
+```
+
+Before submitting, please run the test suite and ensure example.js runs as expected.
+
+---
+
+## License
+
+MIT © Gaurav Sharma
