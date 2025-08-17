@@ -1,4 +1,4 @@
-import { logWithMeta } from '../src/index';
+import { logger } from '../src/index';
 import fs from 'fs';
 import path from 'path';
 
@@ -8,49 +8,64 @@ beforeAll(() => {
   if (fs.existsSync(LOG_FILE)) fs.unlinkSync(LOG_FILE);
 });
 
-test('Logger writes all levels and metadata', done => {
-  // Log entries
-  logWithMeta("Info level log");
-  logWithMeta("Warning level log", { level: "warn" });
-  logWithMeta("Error level log", { level: "error" });
-  logWithMeta("Debug level log", { level: "debug" });
-  logWithMeta("Log with extra context", {
-    level: "info",
-    file: "testFile.js",
-    func: "runTest",
-    extra: { requestId: "abc-123", userId: 42 },
-  });
+function safeRead(filePath: string): string | null {
+  try {
+    return fs.readFileSync(filePath, 'utf8');
+  } catch {
+    return null;
+  }
+}
 
-  setTimeout(() => {
-    const contents = fs.readFileSync(LOG_FILE, 'utf8');
-    const lines = contents.trim().split('\n');
-    const parsed = lines.map(line => {
+function parseJsonLines(contents: string): any[] {
+  const lines = contents
+    .split('\n')
+    .map(l => l.trim())
+    .filter(Boolean);
+  const parsed = lines
+    .map(line => {
       try {
         return JSON.parse(line);
-      } catch (e) {
+      } catch {
         return null;
       }
-    }).filter(Boolean);
+    })
+    .filter(Boolean) as any[];
+  return parsed;
+}
 
-    const passed = parsed.length >= 5 &&
-      parsed.every(entry => {
-        let inner;
-        try {
-          inner = JSON.parse(entry.message);
-        } catch {
-          return false;
-        }
-        return (
-          typeof inner === 'object' &&
-          inner.timestamp &&
-          inner.level &&
-          inner.message &&
-          inner.file &&
-          inner.function
-        );
-      });
+test('Logger writes all levels and metadata', async () => {
+  // Log entries
+  logger.info('Info level log');
+  logger.warn('Warning level log');
+  logger.error('Error level log');
+  logger.debug('Debug level log');
+  logger.critical('Critical level log');
+  logger.info('Log with extra context', {
+    requestId: 'abc-123',
+    userId: 42,
+  });
 
-    expect(passed).toBe(true);
-    done();
-  }, 2000);
-});
+  // Poll for up to 8 seconds for file writes to flush
+  const deadline = Date.now() + 8000;
+  let parsed: any[] = [];
+  while (Date.now() < deadline) {
+    const contents = safeRead(LOG_FILE);
+    if (contents) {
+      parsed = parseJsonLines(contents);
+      const hasFive = parsed.length >= 5;
+      const hasFields = parsed.every((entry: any) =>
+        entry && entry.timestamp && entry.level && entry.message && entry.file && entry.function
+      );
+      if (hasFive && hasFields) {
+        break;
+      }
+    }
+    await new Promise(res => setTimeout(res, 150));
+  }
+
+  const passed = parsed.length >= 5 && parsed.every((entry: any) =>
+    entry && entry.timestamp && entry.level && entry.message && entry.file && entry.function
+  );
+
+  expect(passed).toBe(true);
+}, 10000);
